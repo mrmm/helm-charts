@@ -1,0 +1,82 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "client_name" . }}
+  #namespace: {{ template "namespace" . }}
+  labels:
+    heritage: {{.Release.Service | quote }}
+    release: {{.Release.Name | quote }}
+    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+    component: "{{.Release.Name}}-{{.Values.Component}}"
+    cluster-name: {{ template "cluster_name" . }}
+    env: {{ .Values.Cluster.Env | quote }}
+    type: client
+  annotations:
+    helm.sh/created: {{.Release.Time.Seconds | quote }}
+    cluster-name: {{ template "cluster_name" . }}
+    env: {{ .Values.Cluster.Env | quote }}
+spec:
+  replicas: {{ .Values.Client.Replicas }}
+  template:
+    metadata:
+      labels:
+        heritage: {{.Release.Service | quote }}
+        release: {{.Release.Name | quote }}
+        chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+        component: "{{.Release.Name}}-{{.Values.Component}}"
+        cluster-name: {{ template "cluster_name" . }}
+        env: {{ .Values.Cluster.Env | quote }}
+        type: client
+    spec:
+      serviceAccountName: {{ template "service_account" . }}
+      {{ template "node_selector" . }}
+      containers:
+      - name: elasticsearch
+        {{ template "security_context" . }}
+        #command: ["sleep", "999999"]
+        env:
+        - name: DISCOVERY_SERVICE
+          value: {{ template "discover_service" . }}
+        - name: BOOTSTRAP_MLOCKALL
+          value: "true"
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_TYPE
+          value: {{ template "client_node" . }}
+        - name: ES_HEAP_SIZE
+          value: "{{.Values.Client.HeapSize}}"
+        - name: CLUSTER_NAME
+          value: {{ template "cluster_name" . }}
+        - name: DATA_PATH
+          value: {{ .Values.Cluster.Path.Data | quote }}
+        - name: LOGS_PATH
+          value: {{ .Values.Cluster.Path.Logs | quote }}
+        resources:
+          requests:
+            cpu: "{{.Values.Client.Cpu.Requests}}"
+            memory: "{{.Values.Client.Memory.Requests}}"
+          limits:
+            cpu: "{{.Values.Client.Cpu.Limits}}"
+            memory: "{{.Values.Client.Memory.Limits}}"
+        {{ if .Values.HealthCheck.Enabled }}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9200
+          initialDelaySeconds: 50
+          timeoutSeconds: 1
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9200
+          timeoutSeconds: 5
+        {{end}}
+        image: "{{.Values.Image}}:{{.Values.ImageTag}}"
+        imagePullPolicy: "{{.Values.ImagePullPolicy}}"
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport

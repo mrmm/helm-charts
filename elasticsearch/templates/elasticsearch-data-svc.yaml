@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  name: {{ template "data_svc_name" . }}
+  #namespace: {{ template "namespace" . }}
+  labels:
+    heritage: {{.Release.Service | quote }}
+    release: {{.Release.Name | quote }}
+    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+  annotations:
+    helm.sh/created: {{.Release.Time.Seconds | quote }}
+    cluster-name: {{ template "cluster_name" . }}
+    env: {{ .Values.Cluster.Env | quote }}
+spec:
+  clusterIP: None
+  ports:
+    - port: 9300
+      targetPort: 9300
+  selector:
+    cluster-name: {{ template "cluster_name" . }}
+    env: {{ .Values.Cluster.Env | quote }}
+    type: data

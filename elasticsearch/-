@@ -1,0 +1,94 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    annotations:
+      pv.kubernetes.io/bind-completed: "yes"
+      pv.kubernetes.io/bound-by-controller: "yes"
+      volume.alpha.kubernetes.io/storage-class: anything
+    creationTimestamp: 2016-11-23T23:02:38Z
+    labels:
+      chart: elasticsearch-0.0.1
+      cluster-name: es-001-prod
+      component: es-prod-001-elasticsearch
+      env: prod
+      heritage: Tiller
+      release: es-prod-001
+      type: data
+    name: elasticsearch-data-es-001-data-0
+    namespace: elasticsearch-001
+    resourceVersion: "8759701"
+    selfLink: /api/v1/namespaces/es-001-prod/persistentvolumeclaims/elasticsearch-data-es-001-data-0
+    uid: ee366968-b1d0-11e6-92cc-02f4de8573d3
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 20Gi
+    volumeName: pvc-ee366968-b1d0-11e6-92cc-02f4de8573d3
+  status:
+    phase: Bound
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    annotations:
+      pv.kubernetes.io/bind-completed: "yes"
+      pv.kubernetes.io/bound-by-controller: "yes"
+      volume.alpha.kubernetes.io/storage-class: anything
+    creationTimestamp: 2016-11-23T23:40:08Z
+    labels:
+      chart: elasticsearch-0.0.1
+      cluster-name: es-001-prod
+      component: es-prod-001-elasticsearch
+      env: prod
+      heritage: Tiller
+      release: es-prod-001
+      type: data
+    name: elasticsearch-data-es-001-data-1
+    namespace: elasticsearch-001
+    resourceVersion: "8763625"
+    selfLink: /api/v1/namespaces/es-001-prod/persistentvolumeclaims/elasticsearch-data-es-001-data-1
+    uid: 2af67ce8-b1d6-11e6-92cc-02f4de8573d3
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 20Gi
+    volumeName: pvc-2af67ce8-b1d6-11e6-92cc-02f4de8573d3
+  status:
+    phase: Bound
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    annotations:
+      pv.kubernetes.io/bind-completed: "yes"
+      pv.kubernetes.io/bound-by-controller: "yes"
+      volume.alpha.kubernetes.io/storage-class: anything
+    creationTimestamp: 2016-11-23T23:40:08Z
+    labels:
+      chart: elasticsearch-0.0.1
+      cluster-name: es-001-prod
+      component: es-prod-001-elasticsearch
+      env: prod
+      heritage: Tiller
+      release: es-prod-001
+      type: data
+    name: elasticsearch-data-es-001-data-2
+    namespace: elasticsearch-001
+    resourceVersion: "8763629"
+    selfLink: /api/v1/namespaces/es-001-prod/persistentvolumeclaims/elasticsearch-data-es-001-data-2
+    uid: 2b2861e0-b1d6-11e6-92cc-02f4de8573d3
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 20Gi
+    volumeName: pvc-2b2861e0-b1d6-11e6-92cc-02f4de8573d3
+  status:
+    phase: Bound
+kind: List
+metadata: {}

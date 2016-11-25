@@ -1,0 +1,102 @@
+apiVersion: apps/v1alpha1
+kind: PetSet
+metadata:
+  name: {{ template "data_name" . }}
+  #namespace: {{ template "namespace" . }}
+  labels:
+    heritage: {{.Release.Service | quote }}
+    release: {{.Release.Name | quote }}
+    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+    component: "{{.Release.Name}}-{{.Values.Component}}"
+    cluster-name: {{ template "cluster_name" . }}
+    env: {{ .Values.Cluster.Env | quote }}
+    type: data
+  annotations:
+    helm.sh/created: {{.Release.Time.Seconds | quote }}
+    cluster-name: {{ template "cluster_name" . }}
+    env: {{ .Values.Cluster.Env | quote }}
+spec:
+  serviceName: {{ template "data_svc_name" . }}
+  replicas: {{ .Values.Data.Replicas }}
+  template:
+    metadata:
+      labels:
+        heritage: {{.Release.Service | quote }}
+        release: {{.Release.Name | quote }}
+        chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+        component: "{{.Release.Name}}-{{.Values.Component}}"
+        cluster-name: {{ template "cluster_name" . }}
+        env: {{ .Values.Cluster.Env | quote }}
+        type: data
+      annotations:
+        helm.sh/created: {{.Release.Time.Seconds | quote }}
+        pod.alpha.kubernetes.io/initialized: "true"
+    spec:
+      serviceAccountName: {{ template "service_account" . }}
+      {{ template "node_selector" . }}
+      containers:
+      - name: elasticsearch
+        {{ template "security_context" . }}
+        env:
+        - name: DISCOVERY_SERVICE
+          value: {{ template "discover_service" . }}
+        - name: BOOTSTRAP_MLOCKALL
+          value: "true"
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_TYPE
+          value: {{ template "data_node" . }}
+        - name: CLUSTER_NAME
+          value: {{ template "cluster_name" . }}
+        - name: ES_HEAP_SIZE
+          value: "{{.Values.Data.HeapSize}}"
+        - name: DATA_PATH
+          value: {{ .Values.Cluster.Path.Data | quote }}
+        - name: LOGS_PATH
+          value: {{ .Values.Cluster.Path.Logs | quote }}
+        image: "{{.Values.Image}}:{{.Values.ImageTag}}"
+        imagePullPolicy: "{{.Values.ImagePullPolicy}}"
+        ports:
+        - containerPort: 9300
+          name: transport
+        resources:
+          requests:
+            cpu: "{{.Values.Data.Cpu.Requests}}"
+            memory: "{{.Values.Data.Memory.Requests}}"
+          limits:
+            cpu: "{{.Values.Data.Cpu.Limits}}"
+            memory: "{{.Values.Data.Memory.Limits}}"
+        {{ if .Values.HealthCheck.Enabled }}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9300
+          initialDelaySeconds: 50
+          timeoutSeconds: 1
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9300
+          timeoutSeconds: 5
+        {{ end }}
+        volumeMounts:
+        - mountPath: {{ .Values.Cluster.Path.Data }}
+          name: elasticsearch-data
+        {{ if .Values.Data.EnablePreStop }}
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/bash","/pre-stop-hook.sh"]
+        {{end}}
+  volumeClaimTemplates:
+  - metadata:
+      name: elasticsearch-data
+      annotations:
+        volume.{{ .Values.Data.StorageClassVersion }}.kubernetes.io/storage-class: "{{ .Values.Data.StorageClass }}"
+    spec:
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: "{{.Values.Data.Storage}}"

@@ -1,0 +1,59 @@
+# Default values for elasticsearch.
+# This is a YAML-formatted file.
+# Declare name/value pairs to be passed into your templates.
+# name: value
+
+Name: es
+Component: "elasticsearch"
+Image: "quay.io/mrmm/elasticsearch-kubernetes"
+ImageTag: "2.4.1"
+ImagePullPolicy: "Always"
+NodeSelector:
+  Enabled: true
+  Selector:
+    purpose: elasticsearch
+Cluster:
+  NodeType:
+    Data: "DATA"
+    Master: "MASTER"
+    Client: "CLIENT"
+  Name: "es-002"
+  Env: "prod"
+  Privileged: true
+  Path:
+    Data: /data
+    Logs: /var/log
+Client:
+  Replicas: 2
+  Cpu:
+    Requests: "100m"
+    Limits: "100m"
+  Memory:
+    Requests: "1Gi"
+    Limits: "1Gi"
+  HeapSize: "512m"
+  ServiceType: "NodePort"
+Master:
+  Replicas: 2
+  Cpu:
+    Requests: "100m"
+    Limits: "100m"
+  Memory:
+    Requests: "1Gi"
+    Limits: "1Gi"
+  HeapSize: "512m"
+Data:
+  Replicas: 3
+  Cpu:
+    Requests: "250m"
+    Limits: "250m"
+  Memory:
+    Requests: "1.5Gi"
+    Limits: "1.5Gi"
+  HeapSize: "1400m"
+  Storage: "20Gi"
+  StorageClass: "anything"
+  StorageClassVersion: "alpha"
+  EnablePreStop: true
+HealthCheck:
+  Enabled: false

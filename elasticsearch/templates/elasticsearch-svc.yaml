@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "client_svc_name" . }}
+  #namespace: {{ template "namespace" . }}
+  labels:
+    heritage: {{.Release.Service | quote }}
+    release: {{.Release.Name | quote }}
+    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+  annotations:
+    helm.sh/created: {{.Release.Time.Seconds | quote }}
+    cluster-name: {{ template "cluster_name" . }}
+    env: {{ .Values.Cluster.Env | quote }}
+spec:
+  ports:
+    - port: 9200
+      targetPort: http
+  type: {{ .Values.Client.ServiceType }}
+  selector:
+    component: "{{.Release.Name}}-{{.Values.Component}}"
+    cluster-name: {{ template "cluster_name" . }}
+    env: {{ .Values.Cluster.Env | quote }}
+    type: client
