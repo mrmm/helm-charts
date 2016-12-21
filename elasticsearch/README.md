@@ -18,9 +18,9 @@ elasticsearch and their
 
 ## Todo
 
-[ ] Implement TLS/Auth/Security
-[ ] Smarter upscaling/downscaling
-[x] Solution for memory locking
+- [ ] Implement TLS/Auth/Security
+- [ ] Smarter upscaling/downscaling
+- [x] Solution for memory locking
 
 ## Chart Details
 This chart will do the following:
